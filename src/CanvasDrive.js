@@ -2,18 +2,22 @@ class CanvasDrive {
 
 	constructor(context, width, height) {
 		this.context = context;
+
+		this.resize(width, height);
+
+		this.clearColor = [1, 1, 1];
+		this.clearDepthBuffer = 0;
+	}
+
+	resize(width, height) {
 		this.width = width;
 		this.height = height;
-
 		this.frameBuffer = this.context.createImageData(this.width, this.height);
 		this.buffer = new ArrayBuffer(this.frameBuffer.data.length);
 		this.buffer8 = new Uint8ClampedArray(this.buffer);
 		this.buffer32 = new Uint32Array(this.buffer);
 
 		this.zBuffer = new Uint32Array(this.frameBuffer.data.length);
-
-		this.clearColor = [1, 1, 1];
-		this.clearDepthBuffer = 0;
 	}
 
 	setClearColor(color) {
