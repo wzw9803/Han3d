@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <script type="module">
+        import { CanvasDrive } from "../src/CanvasDrive.js";
+
+        let width = 512;
+        let height = 512;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        document.body.appendChild(canvas);
+
+        const context = canvas.getContext('2d');
+        const cr = new CanvasDrive(context, width, width);
+        cr.setClearColor([255, 0, 0, 255]);
+
+        function loop(count) {
+            requestAnimationFrame(loop);
+
+            cr.clear();
+            cr.draw();
+        }
+        requestAnimationFrame(loop);
+    </script>
+</body>
+
+</html>
