@@ -5,7 +5,7 @@ class CanvasDrive {
 
 		this.resize(width, height);
 
-		this.clearColor = [1, 1, 1];
+		this.clearColor = [0, 0, 0, 255];
 		this.clearDepthBuffer = 0;
 	}
 
@@ -24,7 +24,7 @@ class CanvasDrive {
 		this.clearColor = color;
 	}
 
-	clear(clearColor, clearDepth) {
+	clear(clearColor = true, clearDepth = true) {
 		if (clearColor && clearDepth) {
 			const color = this.clearColor;
 			const depth = this.clearDepthBuffer;
@@ -39,13 +39,29 @@ class CanvasDrive {
 	}
 
 	setPixelColor(index, color) {
-		const c = (color[0] & 255) | ((color[1] & 255) << 8) | ((color[2] & 255) << 16);
-		this.buffer32[index] = c;
+		this.buffer8[index] = color[0];
+		this.buffer8[index + 1] = color[1];
+		this.buffer8[index + 2] = color[2];
+		this.buffer8[index + 3] = color[3];
 	}
 
 	getIndex(pixel_x, pixel_y) {
-		return pixel_y * this.width + pixel_x;
+		return ((pixel_x >> 0) + (pixel_y >> 0) * this.width) * 4
 	}
+
+	// setPixelColor(index, color) {
+	// 	let c;
+	// 	if (color[3] !== undefined) {
+	// 		c = (color[0] & 255) | ((color[1] & 255) << 8) | ((color[2] & 255) << 16) | ((color[3] & 255) << 32);
+	// 	} else {
+	// 		c = (color[0] & 255) | ((color[1] & 255) << 8) | ((color[2] & 255) << 16);
+	// 	}
+	// 	this.buffer32[index] = c;
+	// }
+
+	// getIndex(pixel_x, pixel_y) {
+	// 	return pixel_y * this.width + pixel_x;
+	// }
 
 	draw() {
 		this.frameBuffer.data.set(this.buffer8);
