@@ -1,26 +1,38 @@
 import { PrimitiveType } from './Const.js';
 import { Triangle } from './Triangle.js'
-import { mat4, vec4 } from 'gl-matrix';
+// import { glMatrix.mat4, glMatrix.vec4 } from 'gl-matrix';
 
-const _mat4_1 = mat4.create();
-const _mat4_2 = mat4.create();
+const _mat4_1 = glMatrix.mat4.create();
+const _mat4_2 = glMatrix.mat4.create();
 
 class Rasterizer {
 
-	constructor(dirive) {
-		this.dirive = dirive;
+	constructor(drive) {
+		this.drive = drive;
 		this.pos_buf = new Map();
 		this.ind_buf = new Map();
 
-		this.model = mat4.create();
-		this.view = mat4.create();
-		this.projection = mat4.create();
+		this.model = glMatrix.mat4.create();
+		this.view = glMatrix.mat4.create();
+		this.projection = glMatrix.mat4.create();
 
 		this._nextId = 0;
 	}
 
 	getNextId() {
 		return this._nextId++;
+	}
+
+	setPositions(positions) {
+		const id = this.getNextId();
+		this.pos_buf.set(id, positions);
+		return id;
+	}
+
+	setIndices(indices) {
+		const id = this.getNextId();
+		this.ind_buf.set(id, indices);
+		return id;
 	}
 
 	setModel(model) {
@@ -68,8 +80,8 @@ class Rasterizer {
 				xe = x1;
 			}
 
-			const index = this.dirive.getIndex(x, y);
-			this.dirive.setPixelColor(index, lineColor);
+			const index = this.drive.getIndex(x, y);
+			this.drive.setPixelColor(index, lineColor);
 			for (let i = 0; x < xe; i++) {
 				x = x + 1;
 				if (px < 0) {
@@ -82,8 +94,8 @@ class Rasterizer {
 					}
 					px = px + 2 * (dy1 - dx1);
 				}
-				const index = this.dirive.getIndex(x, y);
-				this.dirive.setPixelColor(index, lineColor);
+				const index = this.drive.getIndex(x, y);
+				this.drive.setPixelColor(index, lineColor);
 			}
 		} else {
 			if (dy >= 0) {
@@ -95,8 +107,8 @@ class Rasterizer {
 				y = y2;
 				ye = y1;
 			}
-			const index = this.dirive.getIndex(x, y);
-			this.dirive.setPixelColor(index, lineColor);
+			const index = this.drive.getIndex(x, y);
+			this.drive.setPixelColor(index, lineColor);
 			for (i = 0; y < ye; i++) {
 				y = y + 1;
 				if (py <= 0) {
@@ -109,8 +121,8 @@ class Rasterizer {
 					}
 					py = py + 2 * (dx1 - dy1);
 				}
-				const index = this.dirive.getIndex(x, y);
-				this.dirive.setPixelColor(index, lineColor);
+				const index = this.drive.getIndex(x, y);
+				this.drive.setPixelColor(index, lineColor);
 			}
 		}
 	}
@@ -131,19 +143,19 @@ class Rasterizer {
 
 		const f1 = (100 - 0.1) / 2.0;
 		const f2 = (100 + 0.1) / 2.0;
-		const width = this.dirive.width;
-		const height = this.dirive.height;
+		const width = this.drive.width;
+		const height = this.drive.height;
 
-		const mvp = mat4.multiply(_mat4_2, this.projection, mat4.multiply(_mat4_1, this.view, this.model));
+		const mvp = glMatrix.mat4.multiply(_mat4_2, this.projection, glMatrix.mat4.multiply(_mat4_1, this.view, this.model));
 
 		for (let i = 0, l = ind_buf.length; i < l; i++) {
 			const index = ind_buf[i];
 			const triangle = new Triangle();
 
 			const positions = [
-				vec4.transformMat4([], this.toVec4(pos_buf[index[0]], 1), mvp),
-				vec4.transformMat4([], this.toVec4(pos_buf[index[1]], 1), mvp),
-				vec4.transformMat4([], this.toVec4(pos_buf[index[2]], 1), mvp),
+				glMatrix.vec4.transformMat4([], this.toVec4(pos_buf[index[0]], 1), mvp),
+				glMatrix.vec4.transformMat4([], this.toVec4(pos_buf[index[1]], 1), mvp),
+				glMatrix.vec4.transformMat4([], this.toVec4(pos_buf[index[2]], 1), mvp),
 			]
 
 			for (let j = 0, jl = positions.length; j < jl; j++) {

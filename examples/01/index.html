@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="../../libs/gl-matrix.js"></script>
+    </head>
+<body>
+    <script type="module">
+        import { renderer } from "./main.js";
+
+        window.renderer1 = renderer();
+        renderer1.init();
+
+        function loop(count) {
+            requestAnimationFrame(loop);
+
+            renderer1.render();
+        }
+        requestAnimationFrame(loop);
+    </script>
+</body>
+
+</html>
