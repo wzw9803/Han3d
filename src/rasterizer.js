@@ -58,7 +58,7 @@ class Rasterizer {
 		const x2 = end[0];
 		const y2 = end[1];
 
-		const lineColor = [255, 255, 255];
+		const lineColor = [255, 0, 0, 255];
 
 		let x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
 
@@ -182,6 +182,8 @@ class Rasterizer {
 			triangle.setColor(2, 0,  0, 255);
 
 			this.rasterizeWireframe(triangle);
+
+			this.drive.draw();
 		}
 	}
 

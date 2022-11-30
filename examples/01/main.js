@@ -33,7 +33,7 @@ const getProjectionMatrix = (eyeFov, aspectRatio, zNear, zFar) => {
 
 	const projection = glMatrix.mat4.create();
 
-	glMatrix.mat4.perspective(projection, eyeFov * PI / 180, aspectRatio, zNear, zFar);
+	glMatrix.mat4.perspective(projection, eyeFov / 180 * PI, aspectRatio, zNear, zFar);
 
 	// TODO: Implement this function
 	// Create the projection matrix for the given parameters.
@@ -76,13 +76,13 @@ const renderer = () => {
 		},
 		render: () => {
 			rasterizer.drive.clear();
-			rasterizer.drive.draw();
+			// rasterizer.drive.draw();
 
-			// rasterizer.setModel(getModelMatrix(angle));
-			// rasterizer.setView(getViewMatrix(eye_pos));
-			// rasterizer.setProjection(getProjectionMatrix(45, 1, 0.1, 50));
+			rasterizer.setModel(getModelMatrix(angle));
+			rasterizer.setView(getViewMatrix(eye_pos));
+			rasterizer.setProjection(getProjectionMatrix(90, 1, 0.1, 1000));
 
-			// rasterizer.draw(posId, indId, PrimitiveType.Triangle);
+			rasterizer.draw(posId, indId, PrimitiveType.Triangle);
 		}
 	}
 }

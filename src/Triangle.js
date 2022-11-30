@@ -27,13 +27,13 @@ class Triangle {
 		this.normals[index] = normal;
 	}
 
-	setColor(index, r, g, b) {
+	setColor(index, r, g, b, a = 255) {
 		if ((r < 0) || (r > 255) || (g < 0) || (g > 255) || (b < 0) ||
         (b > 255)) {
 			console.warn("Invalid color values");
 		}
 
-		this.colors[index] = [r / 255, g / 255, b / 255];
+		this.colors[index] = [r, g, b, a];
 	}
 
 	setTexcoord(index, s, t) {
