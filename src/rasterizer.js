@@ -146,7 +146,8 @@ class Rasterizer {
 		const width = this.drive.width;
 		const height = this.drive.height;
 
-		const mvp = glMatrix.mat4.multiply(_mat4_2, this.projection, glMatrix.mat4.multiply(_mat4_1, this.view, this.model));
+		const viewModelMatrix = glMatrix.mat4.multiply([], this.model, this.view);
+		const mvp = glMatrix.mat4.multiply([], viewModelMatrix, this.projection);
 
 		for (let i = 0, l = ind_buf.length; i < l; i++) {
 			const index = ind_buf[i];

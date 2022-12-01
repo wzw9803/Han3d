@@ -1,4 +1,4 @@
-import { PI, PrimitiveType } from "../../src/Const.js";
+import { PrimitiveType } from "../../src/Const.js";
 import { Rasterizer } from "../../src/Rasterizer.js";
 import { CanvasDrive } from "../../src/CanvasDrive.js";
 
@@ -18,7 +18,7 @@ const getViewMatrix = (eyePosition) => {
 const getModelMatrix = (angle) => {
 	const model = glMatrix.mat4.create();
 
-	glMatrix.mat4.fromZRotation(model, angle);
+	glMatrix.mat4.fromZRotation(model, angle / 180 * Math.PI);
 
 
 	// TODO: Implement this function
@@ -33,7 +33,7 @@ const getProjectionMatrix = (eyeFov, aspectRatio, zNear, zFar) => {
 
 	const projection = glMatrix.mat4.create();
 
-	glMatrix.mat4.perspective(projection, eyeFov / 180 * PI, aspectRatio, zNear, zFar);
+	glMatrix.mat4.perspective(projection, eyeFov / 180 * Math.PI, aspectRatio, zNear, zFar);
 
 	// TODO: Implement this function
 	// Create the projection matrix for the given parameters.
@@ -49,7 +49,6 @@ const renderer = () => {
 
 	const canvas = document.createElement('canvas');
 	document.body.appendChild(canvas);
-
 
 	return {
 		setAngle: (a) => {
@@ -76,11 +75,10 @@ const renderer = () => {
 		},
 		render: () => {
 			rasterizer.drive.clear();
-			// rasterizer.drive.draw();
 
 			rasterizer.setModel(getModelMatrix(angle));
 			rasterizer.setView(getViewMatrix(eye_pos));
-			rasterizer.setProjection(getProjectionMatrix(90, 1, 0.1, 1000));
+			rasterizer.setProjection(getProjectionMatrix(45, 1, 0.1, 50));
 
 			rasterizer.draw(posId, indId, PrimitiveType.Triangle);
 		}
