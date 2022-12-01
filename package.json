@@ -2,6 +2,7 @@
   "name": "han3d",
   "version": "1.0.0",
   "description": "A simple raster soft rendering engine.",
+  "git": "git@github.com:wzw9803/Han3d.git",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
