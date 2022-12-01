@@ -39,6 +39,8 @@ const getProjectionMatrix = (eyeFov, aspectRatio, zNear, zFar) => {
 	// Create the projection matrix for the given parameters.
 	// Then return it.
 
+	// For test const projection = [2.4442348709207398, 0, 0, 0, 0, 2.414213562373095, 0, 0, 0, 0, -1.002002002002002, -1, 0, 0, -0.20020020020020018, 0];
+
 	const projection = [
 		1, 0, 0, 0,
 		0, 1, 0, 0,
