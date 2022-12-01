@@ -3,27 +3,31 @@ import { Rasterizer } from "../../src/Rasterizer.js";
 import { CanvasDrive } from "../../src/CanvasDrive.js";
 
 const getViewMatrix = (eyePosition) => {
-	const view = glMatrix.mat4.create();
-	const trnaslate = [
-		1, 0, 0, -eyePosition[0],
-		0, 1, 0, -eyePosition[1],
-		0, 0, 1, -eyePosition[2],
+	// TODO: Implement this function
+	// Create the view matrix for eye position.
+	// Then return it.
+
+	const view = [
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
 		0, 0, 0, 1
 	];
-	glMatrix.mat4.multiply(view, trnaslate, view);
 
 	return view;
 }
 
 const getModelMatrix = (angle) => {
-	const model = glMatrix.mat4.create();
-
-	glMatrix.mat4.fromZRotation(model, angle / 180 * Math.PI);
-
-
 	// TODO: Implement this function
 	// Create the model matrix for rotating the triangle around the Z axis.
 	// Then return it.
+
+	const model = [
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
+	];
 
 	return model;
 }
@@ -31,13 +35,16 @@ const getModelMatrix = (angle) => {
 const getProjectionMatrix = (eyeFov, aspectRatio, zNear, zFar) => {
 	// Students will implement this function
 
-	const projection = glMatrix.mat4.create();
-
-	glMatrix.mat4.perspective(projection, eyeFov / 180 * Math.PI, aspectRatio, zNear, zFar);
-
 	// TODO: Implement this function
 	// Create the projection matrix for the given parameters.
 	// Then return it.
+
+	const projection = [
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
+	];
 
 	return projection;
 }
