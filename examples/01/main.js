@@ -7,6 +7,8 @@ const getViewMatrix = (eyePosition) => {
 	// Create the view matrix for eye position.
 	// Then return it.
 
+	// // For test const view = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, -5, 0, 0, 0, 1];
+
 	const view = [
 		1, 0, 0, 0,
 		0, 1, 0, 0,
