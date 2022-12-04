@@ -1,5 +1,9 @@
-import { PrimitiveType } from './Const.js';
-import { Triangle } from './Triangle.js'
+import {
+	PrimitiveType
+} from './Const.js';
+import {
+	Triangle
+} from './Triangle.js'
 // import { glMatrix.mat4, glMatrix.vec4 } from 'gl-matrix';
 
 const _mat4_1 = glMatrix.mat4.create();
@@ -146,8 +150,8 @@ class Rasterizer {
 		const width = this.drive.width;
 		const height = this.drive.height;
 
-		const viewModelMatrix = glMatrix.mat4.multiply([], this.model, this.view);
-		const mvp = glMatrix.mat4.multiply([], viewModelMatrix, this.projection);
+		const viewModelMatrix = glMatrix.mat4.multiply([], this.view, this.model);
+		const mvp = glMatrix.mat4.multiply([], this.projection, viewModelMatrix);
 
 		for (let i = 0, l = ind_buf.length; i < l; i++) {
 			const index = ind_buf[i];
@@ -170,7 +174,7 @@ class Rasterizer {
 			for (let j = 0, jl = positions.length; j < jl; j++) {
 				const position = positions[j];
 				position[0] = 0.5 * width * (position[0] + 1.0);
-				position[1] = 0.5 * height * (position[1] + 1.0);
+				position[1] = 0.5 * height * (-position[1] + 1.0);
 				position[2] = position[2] * f1 + f2;
 			}
 
@@ -178,9 +182,9 @@ class Rasterizer {
 			triangle.setVertex(1, [positions[1][0], positions[1][1], positions[1][2]]);
 			triangle.setVertex(2, [positions[2][0], positions[2][1], positions[2][2]]);
 
-			triangle.setColor(0, 255,  0,  0);
-			triangle.setColor(1, 0, 255,  0);
-			triangle.setColor(2, 0,  0, 255);
+			triangle.setColor(0, 255, 0, 0);
+			triangle.setColor(1, 0, 255, 0);
+			triangle.setColor(2, 0, 0, 255);
 
 			this.rasterizeWireframe(triangle);
 

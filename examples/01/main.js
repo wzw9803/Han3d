@@ -1,20 +1,24 @@
-import { PrimitiveType } from "../../src/Const.js";
-import { Rasterizer } from "../../src/Rasterizer.js";
-import { CanvasDrive } from "../../src/CanvasDrive.js";
+import {
+	PrimitiveType
+} from "../../src/Const.js";
+import {
+	Rasterizer
+} from "../../src/Rasterizer.js";
+import {
+	CanvasDrive
+} from "../../src/CanvasDrive.js";
 
 const getViewMatrix = (eyePosition) => {
 	// TODO: Implement this function
 	// Create the view matrix for eye position.
 	// Then return it.
 
-	// // For test const view = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, -5, 0, 0, 0, 1];
-
 	const view = [
 		1, 0, 0, 0,
 		0, 1, 0, 0,
 		0, 0, 1, 0,
-		0, 0, 0, 1
-	];
+		-eyePosition[0], -eyePosition[1], -eyePosition[2], 1
+	]
 
 	return view;
 }
@@ -23,15 +27,17 @@ const getModelMatrix = (angle) => {
 	// TODO: Implement this function
 	// Create the model matrix for rotating the triangle around the Z axis.
 	// Then return it.
-
-	const model = [
-		1, 0, 0, 0,
-		0, 1, 0, 0,
+	const rad = Math.PI * angle / 180
+	const cosR = Math.cos(rad)
+	const sinR = Math.sin(rad)
+	const modelMatrix = [
+		cosR, sinR, 0, 0,
+		-sinR, cosR, 0, 0,
 		0, 0, 1, 0,
-		0, 0, 0, 1
-	];
+		0, 0, 0, 1,
+	]
 
-	return model;
+	return modelMatrix;
 }
 
 const getProjectionMatrix = (eyeFov, aspectRatio, zNear, zFar) => {
@@ -41,20 +47,41 @@ const getProjectionMatrix = (eyeFov, aspectRatio, zNear, zFar) => {
 	// Create the projection matrix for the given parameters.
 	// Then return it.
 
-	// For test const projection = [2.4442348709207398, 0, 0, 0, 0, 2.414213562373095, 0, 0, 0, 0, -1.002002002002002, -1, 0, 0, -0.20020020020020018, 0];
+	const fov = Math.PI * eyeFov / 180
+	const height = 2 * Math.tan(fov / 2) * zNear
+	const width = height * aspectRatio
 
-	const projection = [
+	const perspToOrthoMatrix = [
+		zNear, 0, 0, 0,
+		0, zNear, 0, 0,
+		0, 0, zNear + zFar, -1,
+		0, 0, -zNear * zFar, 0
+	]
+	const mScale = [
+		2 / width, 0, 0, 0,
+		0, 2 / height, 0, 0,
+		0, 0, 2 / (zNear - zFar), 0,
+		0, 0, 0, 1
+	]
+
+	const mTranslate = [
 		1, 0, 0, 0,
 		0, 1, 0, 0,
 		0, 0, 1, 0,
-		0, 0, 0, 1
-	];
+		0, 0, -(zFar + zNear) / 2, 1
+	]
+	let orthoMatrix = []
+	orthoMatrix = glMatrix.mat4.multiply(orthoMatrix, mScale, mTranslate)
 
-	return projection;
+	let projection = [];
+	projection = glMatrix.mat4.multiply(projection, orthoMatrix, perspToOrthoMatrix)
+
+	return projection
 }
 
 const renderer = () => {
-	let angle = 0, eye_pos = [0, 0, 5];
+	let angle = 0,
+		eye_pos = [0, 0, 5];
 	let rasterizer = null;
 	let posId, indId;
 
@@ -75,8 +102,14 @@ const renderer = () => {
 			const drive = new CanvasDrive(context, width, height);
 			rasterizer = new Rasterizer(drive);
 
-			const positions = [[2, 0, -2], [0, 2, -2], [-2, 0, -2]];
-			const indices = [[0, 1, 2]];
+			const positions = [
+				[2, 0, -2],
+				[0, 2, -2],
+				[-2, 0, -2]
+			];
+			const indices = [
+				[0, 1, 2]
+			];
 
 			posId = rasterizer.setPositions(positions);
 			indId = rasterizer.setIndices(indices);
