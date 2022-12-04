@@ -3,34 +3,18 @@ import { Rasterizer } from "../../src/Rasterizer.js";
 import { CanvasDrive } from "../../src/CanvasDrive.js";
 
 const getViewMatrix = (eyePosition) => {
-	// TODO: Implement this function
-	// Create the view matrix for eye position.
-	// Then return it.
-
-	// // For test const view = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, -5, 0, 0, 0, 1];
-
 	const view = [
 		1, 0, 0, 0,
 		0, 1, 0, 0,
 		0, 0, 1, 0,
-		0, 0, 0, 1
+		-eyePosition[0], -eyePosition[1], -eyePosition[2], 1
 	];
 
 	return view;
 }
 
 const getModelMatrix = (angle) => {
-	// TODO: Implement this function
-	// Create the model matrix for rotating the triangle around the Z axis.
-	// Then return it.
-
-	const model = [
-		1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1
-	];
-
+	const model = glMatrix.mat4.fromZRotation([], angle * Math.PI / 180);
 	return model;
 }
 
@@ -44,11 +28,13 @@ const getProjectionMatrix = (eyeFov, aspectRatio, zNear, zFar) => {
 	// For test const projection = [2.4442348709207398, 0, 0, 0, 0, 2.414213562373095, 0, 0, 0, 0, -1.002002002002002, -1, 0, 0, -0.20020020020020018, 0];
 
 	const projection = [
-		1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1
+		1 / Math.tan(eyeFov * Math.PI / 180 / 2) * aspectRatio, 0, 0, 0,
+		0, 1 / Math.tan(eyeFov * Math.PI / 180 / 2), 0, 0,
+		0, 0, (zNear + zFar) / (zNear - zFar), -1,
+		0, 0, -2 * zFar * zNear / (zNear - zFar), 0
 	];
+
+	// glMatrix.mat4.perspective(projection, eyeFov / 180 * Math.PI, aspectRatio, zNear, zFar);
 
 	return projection;
 }

@@ -1,6 +1,5 @@
 import { PrimitiveType } from './Const.js';
 import { Triangle } from './Triangle.js'
-// import { glMatrix.mat4, glMatrix.vec4 } from 'gl-matrix';
 
 const _mat4_1 = glMatrix.mat4.create();
 const _mat4_2 = glMatrix.mat4.create();
@@ -141,24 +140,33 @@ class Rasterizer {
 		const pos_buf = this.pos_buf.get(pos_buf_id);
 		const ind_buf = this.ind_buf.get(ind_buf_id);
 
-		const f1 = (100 - 0.1) / 2.0;
-		const f2 = (100 + 0.1) / 2.0;
+		const f1 = (50 - 0.1) / 2.0;	// (far - near) / 2
+		const f2 = (50 + 0.1) / 2.0;	// (far + near) / 2
 		const width = this.drive.width;
 		const height = this.drive.height;
 
-		const viewModelMatrix = glMatrix.mat4.multiply([], this.model, this.view);
-		const mvp = glMatrix.mat4.multiply([], viewModelMatrix, this.projection);
+		const viewPortMatrix = glMatrix.mat4.set([],
+			width / 2, 0, 0, 0,
+			0, -height / 2, 0, 0,
+			0, 0, f1, 0,
+			0 + width / 2, 0 + height / 2,  f2, 1
+		)
+
+		const viewModelMatrix = glMatrix.mat4.multiply([], this.view, this.model);
+		const mvp = glMatrix.mat4.multiply([], this.projection, viewModelMatrix);
 
 		for (let i = 0, l = ind_buf.length; i < l; i++) {
 			const index = ind_buf[i];
 			const triangle = new Triangle();
 
+			// 变换到剪裁空间下
 			const positions = [
 				glMatrix.vec4.transformMat4([], this.toVec4(pos_buf[index[0]], 1), mvp),
 				glMatrix.vec4.transformMat4([], this.toVec4(pos_buf[index[1]], 1), mvp),
 				glMatrix.vec4.transformMat4([], this.toVec4(pos_buf[index[2]], 1), mvp),
 			]
 
+			// 变换到 NDC 空间下
 			for (let j = 0, jl = positions.length; j < jl; j++) {
 				const position = positions[j];
 				position[0] = position[0] / position[3];
@@ -167,11 +175,10 @@ class Rasterizer {
 				position[3] = position[3] / position[3];
 			}
 
+			// 视口变换
 			for (let j = 0, jl = positions.length; j < jl; j++) {
 				const position = positions[j];
-				position[0] = 0.5 * width * (position[0] + 1.0);
-				position[1] = 0.5 * height * (position[1] + 1.0);
-				position[2] = position[2] * f1 + f2;
+				positions[j] = glMatrix.vec4.transformMat4([], position, viewPortMatrix);
 			}
 
 			triangle.setVertex(0, [positions[0][0], positions[0][1], positions[0][2]]);
