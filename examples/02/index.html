@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="../../libs/gl-matrix.js"></script>
+    </head>
+<body>
+    <script type="module">
+        import { renderer } from "./main.js";
+
+        window.han3d = renderer();
+        han3d.init(700, 700);
+        han3d.setEye([0, 0, 5]);
+        han3d.setCearColor([0, 255, 0, 255]);
+
+        let angle = 0;
+        document.addEventListener('keydown', (ev) => {
+            if(ev.key === 'a'){
+                han3d.setAngle(angle++);
+            }else if(ev.key === 'd'){
+                han3d.setAngle(angle--);
+            }
+        })
+
+        function loop(count) {
+            requestAnimationFrame(loop);
+
+            han3d.render();
+        }
+        requestAnimationFrame(loop);
+    </script>
+</body>
+
+</html>

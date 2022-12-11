@@ -43,7 +43,7 @@ class Triangle {
 	toVector4() {
 		const res = [];
 		for (let i = 0, l = this.positions.length; i < l; i++) {
-			res.push([...this.positions, 1]);
+			res.push([...this.positions[i], 1]);
 		}
 
 		return res;

@@ -10,6 +10,7 @@ class Rasterizer {
 		this.drive = drive;
 		this.pos_buf = new Map();
 		this.ind_buf = new Map();
+		this.col_buf = new Map();
 
 		this.model = glMatrix.mat4.create();
 		this.view = glMatrix.mat4.create();
@@ -31,6 +32,12 @@ class Rasterizer {
 	setIndices(indices) {
 		const id = this.getNextId();
 		this.ind_buf.set(id, indices);
+		return id;
+	}
+
+	setColors(colors) {
+		const id = this.getNextId();
+		this.col_buf.set(id, colors);
 		return id;
 	}
 
@@ -132,13 +139,34 @@ class Rasterizer {
 		this.drawLine(triangle.b, triangle.a);
 	}
 
-	draw(pos_buf_id, ind_buf_id, type) {
+	// Screen space rasterization
+	rasterizeTriangle(triangle) {
+		let v = triangle.toVector4();
+
+		// TODO : Find out the bounding box of current triangle.
+		// iterate through the pixel and find if the current pixel is inside the triangle
+
+		// If so, use the following code to get the interpolated z value.
+		// auto[alpha, beta, gamma] = computeBarycentric2D(x, y, t.v);
+		// float w_reciprocal = 1.0/(alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
+		// float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
+		// z_interpolated *= w_reciprocal;
+
+		// TODO : set the current pixel (use the set_pixel function) to the color of the triangle (use getColor function) if it should be painted.
+	}
+
+	insideTriangle(x, y, _v = []) {
+		// TODO : Implement this function to check if the point (x, y) is inside the triangle represented by _v[0], _v[1], _v[2]
+	}
+
+	draw(pos_buf_id, ind_buf_id, col_buf_id, type) {
 		if (type !== PrimitiveType.Triangle) {
 			console.warn("Drawing primitives other than triangle is not implemented yet!");
 		}
 
 		const pos_buf = this.pos_buf.get(pos_buf_id);
 		const ind_buf = this.ind_buf.get(ind_buf_id);
+		const col_buf = this.col_buf.get(col_buf_id);
 
 		const f1 = (50 - 0.1) / 2.0;	// (far - near) / 2
 		const f2 = (50 + 0.1) / 2.0;	// (far + near) / 2
@@ -181,13 +209,17 @@ class Rasterizer {
 				positions[j] = glMatrix.vec4.transformMat4([], position, viewPortMatrix);
 			}
 
-			triangle.setVertex(0, [positions[0][0], positions[0][1], positions[0][2]]);
-			triangle.setVertex(1, [positions[1][0], positions[1][1], positions[1][2]]);
-			triangle.setVertex(2, [positions[2][0], positions[2][1], positions[2][2]]);
+			for (let j = 0; j < 3; j++) {
+				triangle.setVertex(j, positions[j]);
+			}
 
-			triangle.setColor(0, 255,  0,  0);
-			triangle.setColor(1, 0, 255,  0);
-			triangle.setColor(2, 0,  0, 255);
+			let col_x = col_buf[i + 0];
+			let col_y = col_buf[i + 1];
+			let col_z = col_buf[i + 2];
+
+			triangle.setColor(0, col_x[0], col_x[1], col_x[2]);
+			triangle.setColor(1, col_y[0], col_y[1], col_y[2]);
+			triangle.setColor(2, col_z[0], col_z[1], col_z[2]);
 
 			this.rasterizeWireframe(triangle);
 
