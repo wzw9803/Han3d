@@ -1,8 +1,19 @@
 import { PrimitiveType } from './Const.js';
-import { Triangle } from './Triangle.js'
+import { Triangle } from './Triangle.js';
 
 const _mat4_1 = glMatrix.mat4.create();
-const _mat4_2 = glMatrix.mat4.create();
+const _vec2_1 = glMatrix.vec2.create();
+const _vec2_2 = glMatrix.vec2.create();
+const _vec2_3 = glMatrix.vec2.create();
+const _vec2_4 = glMatrix.vec2.create();
+const _vec2_5 = glMatrix.vec2.create();
+const _vec2_6 = glMatrix.vec2.create();
+const _vec2_7 = glMatrix.vec2.create();
+
+const _vec3_1 = glMatrix.vec3.create();
+const _vec3_2 = glMatrix.vec3.create();
+const _vec3_3 = glMatrix.vec3.create();
+const _box2_1 = [[Infinity, Infinity], [-Infinity, -Infinity]];	// [min, max]
 
 class Rasterizer {
 
@@ -145,6 +156,27 @@ class Rasterizer {
 
 		// TODO : Find out the bounding box of current triangle.
 		// iterate through the pixel and find if the current pixel is inside the triangle
+		_box2_1[0][0] = _box2_1[0][1] = Infinity;
+		_box2_1[1][0] = _box2_1[1][1] = -Infinity;
+		for (let i = 0, l = v.length; i < l; i++) {
+			const point = v[i];
+			_box2_1[0][0] = Math.min(_box2_1[0][0], point[0]);
+			_box2_1[0][1] = Math.min(_box2_1[0][1], point[1]);
+
+			_box2_1[1][0] = Math.max(_box2_1[1][0], point[0]);
+			_box2_1[1][1] = Math.max(_box2_1[1][1], point[1]);
+		}
+
+		for (let y = _box2_1[0][1]; y < _box2_1[1][1]; y++) {
+			for (let x = _box2_1[0][0]; x < _box2_1[1][0]; x++) {
+				if (!this.insideTriangle(x + 0.5, y + 0.5, v)) {
+					continue;
+				}
+
+				const index = this.drive.getIndex(x, y);
+				this.drive.setPixelColor(index, [255, 0, 0, 255]);
+			}
+		}
 
 		// If so, use the following code to get the interpolated z value.
 		// auto[alpha, beta, gamma] = computeBarycentric2D(x, y, t.v);
@@ -157,6 +189,26 @@ class Rasterizer {
 
 	insideTriangle(x, y, _v = []) {
 		// TODO : Implement this function to check if the point (x, y) is inside the triangle represented by _v[0], _v[1], _v[2]
+
+		glMatrix.vec2.set(_vec2_1, x, y);
+		glMatrix.vec2.subtract(_vec2_2, _v[1], _v[0]);
+		glMatrix.vec2.subtract(_vec2_5, _vec2_1, _v[0]);
+		glMatrix.vec2.cross(_vec3_1, _vec2_2, _vec2_5);
+
+		glMatrix.vec2.subtract(_vec2_3, _v[2], _v[1]);
+		glMatrix.vec2.subtract(_vec2_6, _vec2_1, _v[1]);
+		glMatrix.vec2.cross(_vec3_2, _vec2_3, _vec2_6);
+
+		glMatrix.vec2.subtract(_vec2_4, _v[0], _v[2]);
+		glMatrix.vec2.subtract(_vec2_7, _vec2_1, _v[2]);
+		glMatrix.vec2.cross(_vec3_3, _vec2_4, _vec2_7);
+
+		if ((_vec3_1[2] > 0 && _vec3_2[2] > 0 && _vec3_3[2] > 0)
+		|| (_vec3_1[2] < 0 && _vec3_2[2] < 0 && _vec3_3[2] < 0)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	draw(pos_buf_id, ind_buf_id, col_buf_id, type) {
@@ -210,6 +262,7 @@ class Rasterizer {
 			}
 
 			for (let j = 0; j < 3; j++) {
+				positions[j].pop();
 				triangle.setVertex(j, positions[j]);
 			}
 
@@ -221,7 +274,7 @@ class Rasterizer {
 			triangle.setColor(1, col_y[0], col_y[1], col_y[2]);
 			triangle.setColor(2, col_z[0], col_z[1], col_z[2]);
 
-			this.rasterizeWireframe(triangle);
+			this.rasterizeTriangle(triangle);
 
 			this.drive.draw();
 		}
