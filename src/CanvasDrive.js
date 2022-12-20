@@ -6,7 +6,7 @@ class CanvasDrive {
 		this.resize(width, height);
 
 		this.clearColor = [0, 0, 0, 255];
-		this.clearDepthBuffer = 0;
+		this.clearDepthBuffer = 10000;
 	}
 
 	resize(width, height) {

@@ -152,7 +152,7 @@ class Rasterizer {
 
 	// Screen space rasterization
 	rasterizeTriangle(triangle) {
-		let v = triangle.toVector4();
+		const v = triangle.toVector4();
 
 		// TODO : Find out the bounding box of current triangle.
 		// iterate through the pixel and find if the current pixel is inside the triangle
@@ -173,8 +173,17 @@ class Rasterizer {
 					continue;
 				}
 
+				const { alpha, beta, gamma } = this.computeBarycentric2D(x, y, v);
+				const w_reciprocal = 1.0 / (alpha / v[0][3] + beta / v[1][3] + gamma / v[2][3]);
+				let z_interpolated = alpha * v[0][2] / v[0][3] + beta * v[1][2] / v[1][3] + gamma * v[2][2] / v[2][3];
+				z_interpolated *= w_reciprocal;
+
 				const index = this.drive.getIndex(x, y);
-				this.drive.setPixelColor(index, [255, 0, 0, 255]);
+				if (z_interpolated < this.drive.zBuffer[index]) {
+					const color = this.interpolate(alpha, beta, gamma, triangle.colors);
+					this.drive.zBuffer[index] = z_interpolated;
+					this.drive.setPixelColor(index, color);
+				}
 			}
 		}
 
@@ -185,6 +194,23 @@ class Rasterizer {
 		// z_interpolated *= w_reciprocal;
 
 		// TODO : set the current pixel (use the set_pixel function) to the color of the triangle (use getColor function) if it should be painted.
+	}
+
+	interpolate(alpha, beta, gamma, value) {
+		const color = [0, 0, 0, 0];
+		color[0] = alpha * value[0][0] + beta * value[1][0] + gamma * value[2][0];
+		color[1] = alpha * value[0][1] + beta * value[1][1] + gamma * value[2][1];
+		color[2] = alpha * value[0][2] + beta * value[1][2] + gamma * value[2][2];
+		color[3] = alpha * value[0][3] + beta * value[1][3] + gamma * value[2][3];
+
+		return color;
+	}
+
+	computeBarycentric2D(x, y, v) {
+		const gamma = (x * (v[0][1] - v[1][1]) + (v[1][0] - v[0][0]) * y + v[0][0] * v[1][1] - v[1][0] * v[0][1]) / (v[2][0] * (v[0][1] - v[1][1]) + (v[1][0] - v[0][0]) * v[2][1] + v[0][0] * v[1][1] - v[1][0] * v[0][1]);
+		const alpha = (x * (v[1][1] - v[2][1]) + (v[2][0] - v[1][0]) * y + v[1][0] * v[2][1] - v[2][0] * v[1][1]) / (v[0][0] * (v[1][1] - v[2][1]) + (v[2][0] - v[1][0]) * v[0][1] + v[1][0] * v[2][1] - v[2][0] * v[1][1]);
+		const beta = (x * (v[2][1] - v[0][1]) + (v[0][0] - v[2][0]) * y + v[2][0] * v[0][1] - v[0][0] * v[2][1]) / (v[1][0] * (v[2][1] - v[0][1]) + (v[0][0] - v[2][0]) * v[1][1] + v[2][0] * v[0][1] - v[0][0] * v[2][1]);
+		return { alpha, beta, gamma };
 	}
 
 	insideTriangle(x, y, _v = []) {
@@ -266,9 +292,9 @@ class Rasterizer {
 				triangle.setVertex(j, positions[j]);
 			}
 
-			let col_x = col_buf[i + 0];
-			let col_y = col_buf[i + 1];
-			let col_z = col_buf[i + 2];
+			const col_x = col_buf[i * 3 + 0];
+			const col_y = col_buf[i * 3 + 1];
+			const col_z = col_buf[i * 3 + 2];
 
 			triangle.setColor(0, col_x[0], col_x[1], col_x[2]);
 			triangle.setColor(1, col_y[0], col_y[1], col_y[2]);
